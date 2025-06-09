@@ -40,6 +40,7 @@ export const auth = betterAuth({
             name: clinic.clinic.name,
           },
         },
+        session,
       };
     }),
   ],
