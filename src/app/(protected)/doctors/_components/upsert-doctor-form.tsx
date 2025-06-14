@@ -1,8 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useAction } from "next-safe-action/hooks";
 import { useForm } from "react-hook-form";
 import { NumericFormat } from "react-number-format";
+import { toast } from "sonner";
 import z from "zod";
 
+import { upsertDoctor } from "@/actions/upsert-doctor";
 import { Button } from "@/components/ui/button";
 import {
   DialogContent,
@@ -58,7 +61,7 @@ const formSchema = z
 
   .refine(
     (data) => {
-      return Number(data.availableFromTime) < Number(data.availableToTime);
+      return data.availableFromTime < data.availableToTime;
     },
     {
       message:
@@ -71,8 +74,6 @@ const UpsertDoctorForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      specialty: "",
       appointmentPrice: 0,
       availableFromWeekDay: "1",
       availableToWeekDay: "5",
@@ -81,8 +82,22 @@ const UpsertDoctorForm = () => {
     },
   });
 
+  const upsertDoctorAction = useAction(upsertDoctor, {
+    onSuccess: () => {
+      toast.success("Médico adicionado com sucesso.");
+    },
+    onError: () => {
+      toast.error("Erro ao adicionar médico.");
+    },
+  });
+
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+    upsertDoctorAction.execute({
+      ...values,
+      availableFromWeekDay: parseInt(values.availableFromWeekDay),
+      availableToWeekDay: parseInt(values.availableToWeekDay),
+      appointmentPriceInCents: values.appointmentPrice * 100,
+    });
   };
 
   return (
@@ -240,52 +255,52 @@ const UpsertDoctorForm = () => {
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Manhã</SelectLabel>
-                      <SelectItem value="0">05:00</SelectItem>
-                      <SelectItem value="1">05:30</SelectItem>
-                      <SelectItem value="2">06:00</SelectItem>
-                      <SelectItem value="3">06:30</SelectItem>
-                      <SelectItem value="4">07:00</SelectItem>
-                      <SelectItem value="5">07:30</SelectItem>
-                      <SelectItem value="6">08:00</SelectItem>
-                      <SelectItem value="7">08:30</SelectItem>
-                      <SelectItem value="8">09:00</SelectItem>
-                      <SelectItem value="9">09:30</SelectItem>
-                      <SelectItem value="10">10:00</SelectItem>
-                      <SelectItem value="11">10:30</SelectItem>
-                      <SelectItem value="12">11:00</SelectItem>
-                      <SelectItem value="13">11:30</SelectItem>
-                      <SelectItem value="14">12:00</SelectItem>
-                      <SelectItem value="15">12:30</SelectItem>
+                      <SelectItem value="05:00:00">05:00</SelectItem>
+                      <SelectItem value="05:30:00">05:30</SelectItem>
+                      <SelectItem value="06:00:00">06:00</SelectItem>
+                      <SelectItem value="06:30:00">06:30</SelectItem>
+                      <SelectItem value="07:00:00">07:00</SelectItem>
+                      <SelectItem value="07:30:00">07:30</SelectItem>
+                      <SelectItem value="08:00:00">08:00</SelectItem>
+                      <SelectItem value="08:30:00">08:30</SelectItem>
+                      <SelectItem value="09:00:00">09:00</SelectItem>
+                      <SelectItem value="09:30:00">09:30</SelectItem>
+                      <SelectItem value="10:00:00">10:00</SelectItem>
+                      <SelectItem value="10:30:00">10:30</SelectItem>
+                      <SelectItem value="11:00:00">11:00</SelectItem>
+                      <SelectItem value="11:30:00">11:30</SelectItem>
+                      <SelectItem value="12:00:00">12:00</SelectItem>
+                      <SelectItem value="12:30:00">12:30</SelectItem>
                     </SelectGroup>
 
                     <SelectGroup>
                       <SelectLabel>Tarde</SelectLabel>
-                      <SelectItem value="16">13:00</SelectItem>
-                      <SelectItem value="17">13:30</SelectItem>
-                      <SelectItem value="18">14:00</SelectItem>
-                      <SelectItem value="19">14:30</SelectItem>
-                      <SelectItem value="20">15:00</SelectItem>
-                      <SelectItem value="21">15:30</SelectItem>
-                      <SelectItem value="22">16:00</SelectItem>
-                      <SelectItem value="23">16:30</SelectItem>
-                      <SelectItem value="24">17:00</SelectItem>
-                      <SelectItem value="25">17:30</SelectItem>
-                      <SelectItem value="26">18:00</SelectItem>
-                      <SelectItem value="27">18:30</SelectItem>
+                      <SelectItem value="13:00:00">13:00</SelectItem>
+                      <SelectItem value="13:30:00">13:30</SelectItem>
+                      <SelectItem value="14:00:00">14:00</SelectItem>
+                      <SelectItem value="14:30:00">14:30</SelectItem>
+                      <SelectItem value="15:00:00">15:00</SelectItem>
+                      <SelectItem value="15:30:00">15:30</SelectItem>
+                      <SelectItem value="16:00:00">16:00</SelectItem>
+                      <SelectItem value="16:30:00">16:30</SelectItem>
+                      <SelectItem value="17:00:00">17:00</SelectItem>
+                      <SelectItem value="17:30:00">17:30</SelectItem>
+                      <SelectItem value="18:00:00">18:00</SelectItem>
+                      <SelectItem value="18:30:00">18:30</SelectItem>
                     </SelectGroup>
 
                     <SelectGroup>
                       <SelectLabel>Noite</SelectLabel>
-                      <SelectItem value="28">19:00</SelectItem>
-                      <SelectItem value="29">19:30</SelectItem>
-                      <SelectItem value="30">20:00</SelectItem>
-                      <SelectItem value="31">20:30</SelectItem>
-                      <SelectItem value="32">21:00</SelectItem>
-                      <SelectItem value="33">21:30</SelectItem>
-                      <SelectItem value="34">22:00</SelectItem>
-                      <SelectItem value="35">22:30</SelectItem>
-                      <SelectItem value="36">23:00</SelectItem>
-                      <SelectItem value="37">23:30</SelectItem>
+                      <SelectItem value="19:00:00">19:00</SelectItem>
+                      <SelectItem value="19:30:00">19:30</SelectItem>
+                      <SelectItem value="20:00:00">20:00</SelectItem>
+                      <SelectItem value="20:30:00">20:30</SelectItem>
+                      <SelectItem value="21:00:00">21:00</SelectItem>
+                      <SelectItem value="21:30:00">21:30</SelectItem>
+                      <SelectItem value="22:00:00">22:00</SelectItem>
+                      <SelectItem value="22:30:00">22:30</SelectItem>
+                      <SelectItem value="23:00:00">23:00</SelectItem>
+                      <SelectItem value="23:30:00">23:30</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -313,52 +328,52 @@ const UpsertDoctorForm = () => {
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Manhã</SelectLabel>
-                      <SelectItem value="0">05:00</SelectItem>
-                      <SelectItem value="1">05:30</SelectItem>
-                      <SelectItem value="2">06:00</SelectItem>
-                      <SelectItem value="3">06:30</SelectItem>
-                      <SelectItem value="4">07:00</SelectItem>
-                      <SelectItem value="5">07:30</SelectItem>
-                      <SelectItem value="6">08:00</SelectItem>
-                      <SelectItem value="7">08:30</SelectItem>
-                      <SelectItem value="8">09:00</SelectItem>
-                      <SelectItem value="9">09:30</SelectItem>
-                      <SelectItem value="10">10:00</SelectItem>
-                      <SelectItem value="11">10:30</SelectItem>
-                      <SelectItem value="12">11:00</SelectItem>
-                      <SelectItem value="13">11:30</SelectItem>
-                      <SelectItem value="14">12:00</SelectItem>
-                      <SelectItem value="15">12:30</SelectItem>
+                      <SelectItem value="05:00:00">05:00</SelectItem>
+                      <SelectItem value="05:30:00">05:30</SelectItem>
+                      <SelectItem value="06:00:00">06:00</SelectItem>
+                      <SelectItem value="06:30:00">06:30</SelectItem>
+                      <SelectItem value="07:00:00">07:00</SelectItem>
+                      <SelectItem value="07:30:00">07:30</SelectItem>
+                      <SelectItem value="08:00:00">08:00</SelectItem>
+                      <SelectItem value="08:30:00">08:30</SelectItem>
+                      <SelectItem value="09:00:00">09:00</SelectItem>
+                      <SelectItem value="09:30:00">09:30</SelectItem>
+                      <SelectItem value="10:00:00">10:00</SelectItem>
+                      <SelectItem value="10:30:00">10:30</SelectItem>
+                      <SelectItem value="11:00:00">11:00</SelectItem>
+                      <SelectItem value="11:30:00">11:30</SelectItem>
+                      <SelectItem value="12:00:00">12:00</SelectItem>
+                      <SelectItem value="12:30:00">12:30</SelectItem>
                     </SelectGroup>
 
                     <SelectGroup>
                       <SelectLabel>Tarde</SelectLabel>
-                      <SelectItem value="16">13:00</SelectItem>
-                      <SelectItem value="17">13:30</SelectItem>
-                      <SelectItem value="18">14:00</SelectItem>
-                      <SelectItem value="19">14:30</SelectItem>
-                      <SelectItem value="20">15:00</SelectItem>
-                      <SelectItem value="21">15:30</SelectItem>
-                      <SelectItem value="22">16:00</SelectItem>
-                      <SelectItem value="23">16:30</SelectItem>
-                      <SelectItem value="24">17:00</SelectItem>
-                      <SelectItem value="25">17:30</SelectItem>
-                      <SelectItem value="26">18:00</SelectItem>
-                      <SelectItem value="27">18:30</SelectItem>
+                      <SelectItem value="13:00:00">13:00</SelectItem>
+                      <SelectItem value="13:30:00">13:30</SelectItem>
+                      <SelectItem value="14:00:00">14:00</SelectItem>
+                      <SelectItem value="14:30:00">14:30</SelectItem>
+                      <SelectItem value="15:00:00">15:00</SelectItem>
+                      <SelectItem value="15:30:00">15:30</SelectItem>
+                      <SelectItem value="16:00:00">16:00</SelectItem>
+                      <SelectItem value="16:30:00">16:30</SelectItem>
+                      <SelectItem value="17:00:00">17:00</SelectItem>
+                      <SelectItem value="17:30:00">17:30</SelectItem>
+                      <SelectItem value="18:00:00">18:00</SelectItem>
+                      <SelectItem value="18:30:00">18:30</SelectItem>
                     </SelectGroup>
 
                     <SelectGroup>
                       <SelectLabel>Noite</SelectLabel>
-                      <SelectItem value="28">19:00</SelectItem>
-                      <SelectItem value="29">19:30</SelectItem>
-                      <SelectItem value="30">20:00</SelectItem>
-                      <SelectItem value="31">20:30</SelectItem>
-                      <SelectItem value="32">21:00</SelectItem>
-                      <SelectItem value="33">21:30</SelectItem>
-                      <SelectItem value="34">22:00</SelectItem>
-                      <SelectItem value="35">22:30</SelectItem>
-                      <SelectItem value="36">23:00</SelectItem>
-                      <SelectItem value="37">23:30</SelectItem>
+                      <SelectItem value="19:00:00">19:00</SelectItem>
+                      <SelectItem value="19:30:00">19:30</SelectItem>
+                      <SelectItem value="20:00:00">20:00</SelectItem>
+                      <SelectItem value="20:30:00">20:30</SelectItem>
+                      <SelectItem value="21:00:00">21:00</SelectItem>
+                      <SelectItem value="21:30:00">21:30</SelectItem>
+                      <SelectItem value="22:00:00">22:00</SelectItem>
+                      <SelectItem value="22:30:00">22:30</SelectItem>
+                      <SelectItem value="23:00:00">23:00</SelectItem>
+                      <SelectItem value="23:30:00">23:30</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -367,7 +382,9 @@ const UpsertDoctorForm = () => {
             )}
           />
           <DialogFooter>
-            <Button type="submit">Adicionar</Button>
+            <Button type="submit" disabled={upsertDoctorAction.isPending}>
+              {upsertDoctorAction.isPending ? "Adicionando..." : "Adicionar"}
+            </Button>
           </DialogFooter>
         </form>
       </Form>
